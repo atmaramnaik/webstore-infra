@@ -53,7 +53,7 @@ RUN add-apt-repository  "deb [arch=amd64] https://download.docker.com/linux/ubun
 RUN apt-get update
 RUN apt-get install -y docker-ce=17.09.0~ce-0~ubuntu
 
-RUN curl -L "https://github.com/docker/compose/releases/download/1.9.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+RUN curl -L "https://github.com/docker/compose/releases/download/1.21.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 RUN chmod +x /usr/local/bin/docker-compose
 
 RUN apt-get -y install nodejs npm \

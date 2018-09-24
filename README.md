@@ -11,11 +11,6 @@
     ```shell 
     vagrant plugin install vagrant-managed-servers
     ```
-4. Import gerrit-access key from secrets
-   ```shell
-    ./add-secrets.sh
-   ```
-
 ## Provisioning GoCD machine on local machine
 
 #### Starting local cluster impostor
@@ -35,5 +30,5 @@
 
 #### GoCD User Interface
 
-<p> Hola! you have successfully provisioned GoCD server on your local machine. GoCD server can be accessed from host machine using <a href=http://192.168.33.66:80>url</a></p>
+<p> Hola! you have successfully provisioned GoCD server on your local machine. GoCD server can be accessed from host machine using <a href=http://192.168.33.66:8153>url</a> with login username : webstore and password : test123$</p>
      ```
