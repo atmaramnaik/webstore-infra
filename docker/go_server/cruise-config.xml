@@ -98,7 +98,7 @@
     <pipeline name="ui">
       <environmentvariables>
         <variable name="BUILD_ENV">
-          <value>pipeline</value>
+          <value>local</value>
         </variable>
       </environmentvariables>
       <materials>
@@ -122,6 +122,11 @@
       </stage>
     </pipeline>
     <pipeline name="unifiedapi">
+      <environmentvariables>
+        <variable name="ENV">
+          <value>local</value>
+        </variable>
+      </environmentvariables>
       <materials>
         <git url="https://github.com/atmaramnaik/webstore-unifiedapi.git" />
       </materials>
@@ -141,10 +146,11 @@
   <pipelines group="Test">
     <pipeline name="functional-tests">
       <materials>
-        <git url="https://github.com/atmaramnaik/webstore-functional-tests.git" />
+        <git url="https://github.com/atmaramnaik/webstore-functional-tests.git" dest="webstore-functional-tests" />
         <pipeline pipelineName="registration-service" stageName="deploy" materialName="registration-service" />
         <pipeline pipelineName="ui" stageName="build" materialName="ui" />
         <pipeline pipelineName="product-service" stageName="deploy" materialName="product-service" />
+        <git url="https://github.com/atmaramnaik/webstore-build-support.git" dest="webstore-build-support" materialName="build_support" />
       </materials>
       <stage name="test">
         <jobs>
@@ -152,6 +158,18 @@
             <tasks>
               <exec command="ls" workingdir="webstore-build-support/docker-compose">
                 <arg>-al</arg>
+                <runif status="passed" />
+              </exec>
+              <exec command="docker-compose" workingdir="webstore-build-support">
+                <arg>-f</arg>
+                <arg>docker-compose/docker-compose.ubuntu.yml</arg>
+                <arg>up</arg>
+                <runif status="passed" />
+              </exec>
+              <exec command="docker-compose" workingdir="webstore-build-support">
+                <arg>-f</arg>
+                <arg>docker-compose/docker-compose.ubuntu.yml</arg>
+                <arg>stop</arg>
                 <runif status="passed" />
               </exec>
             </tasks>
