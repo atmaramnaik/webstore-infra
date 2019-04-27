@@ -57,11 +57,11 @@ Vagrant.configure('2') do |config|
  end
 
   def import_agent_image(config)
-    config.vm.provision :shell, inline: 'docker load --input /vagrant/docker/go.agent.selenium.ready.tar'
+    config.vm.provision :shell, inline: 'docker load --input /vagrant/docker/go.agent.selenium.ready.tar || true'
   end
 
   def import_server_image(config)
-      config.vm.provision :shell, inline: 'docker load --input /vagrant/docker/go.server.tar'
+      config.vm.provision :shell, inline: 'docker load --input /vagrant/docker/go.server.tar || true'
     end
 
   def setup_provisioner_for_removing_existing_containers_and_cleanup_images(config)
