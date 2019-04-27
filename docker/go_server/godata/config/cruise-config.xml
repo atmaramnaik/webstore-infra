@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="97">
-  <server artifactsdir="artifacts" agentAutoRegisterKey="123456789abcdef" webhookSecret="e4f07766-f0b4-420c-9e4c-d18d4d08a95c" commandRepositoryLocation="default" serverId="17138edc-fcdb-432c-8aab-5c8cdcc2cab6">
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="120">
+  <server artifactsdir="artifacts" agentAutoRegisterKey="123456789abcdefgh987654321" webhookSecret="57b5b4a5-e839-4735-935c-168e97b80033" commandRepositoryLocation="default" serverId="239404b7-69fe-4fc9-81e9-945654461562" tokenGenerationKey="cf41059c-dcd2-4e14-8af3-a2013a92629f">
+    <backup emailOnSuccess="true" emailOnFailure="true" />
     <security>
       <authConfigs>
         <authConfig id="01116fb0-df22-4bb2-9163-b62228b52b4a" pluginId="cd.go.authentication.passwordfile">
@@ -23,7 +24,7 @@
     </security>
   </server>
   <pipelines group="build">
-    <pipeline name="registration-service" isLocked="false">
+    <pipeline name="registration-service">
       <materials>
         <git url="https://github.com/atmaramnaik/webstore-registration-service.git" />
       </materials>
@@ -51,7 +52,7 @@
         </jobs>
       </stage>
     </pipeline>
-    <pipeline name="product-service" isLocked="false">
+    <pipeline name="product-service">
       <materials>
         <git url="https://github.com/atmaramnaik/webstore-product-service.git" />
       </materials>
@@ -145,6 +146,14 @@
   </pipelines>
   <pipelines group="Test">
     <pipeline name="functional-tests">
+      <environmentvariables>
+        <variable name="BASE_URL">
+          <value>http://192.168.33.66/ui</value>
+        </variable>
+        <variable name="DISPLAY">
+          <value>:99</value>
+        </variable>
+      </environmentvariables>
       <materials>
         <git url="https://github.com/atmaramnaik/webstore-functional-tests.git" dest="webstore-functional-tests" />
         <pipeline pipelineName="registration-service" stageName="deploy" materialName="registration-service" />
@@ -164,15 +173,24 @@
                 <arg>-f</arg>
                 <arg>docker-compose/docker-compose.ubuntu.yml</arg>
                 <arg>up</arg>
+                <arg>-d</arg>
+                <runif status="passed" />
+              </exec>
+              <exec command="./gradlew" workingdir="webstore-functional-tests">
+                <arg>clean</arg>
+                <arg>test</arg>
                 <runif status="passed" />
               </exec>
               <exec command="docker-compose" workingdir="webstore-build-support">
                 <arg>-f</arg>
                 <arg>docker-compose/docker-compose.ubuntu.yml</arg>
                 <arg>stop</arg>
-                <runif status="passed" />
+                <runif status="any" />
               </exec>
             </tasks>
+            <artifacts>
+              <artifact type="test" src="webstore-functional-tests/build" dest="reports" />
+            </artifacts>
           </job>
         </jobs>
       </stage>

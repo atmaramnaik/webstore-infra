@@ -12,12 +12,12 @@ CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), 'user-data')
 COREOS_LOCAL_VERSION = '>=877.1.0'
 
 GOCD_HOST_LOCAL = '192.168.33.66'
-GOCD_PORTS_LOCAL = { 80 => 8153 }
+GOCD_PORTS_LOCAL = { 8153 => 8153, 80 => 8080 }
 
-GO_SERVER_IMAGE = 'go17_server'
-GO_AGENT_IMAGE = 'go17_agent'
-DOCKER_REGISTRY_IMAGE = 'docker_registry'
-GO_AGENTS_IMAGES = (1..1).map {|i| GO_AGENT_IMAGE + i.to_s}
+GO_SERVER_IMAGE = 'go-server'
+GO_AGENT_IMAGE = 'go-agent'
+DOCKER_REGISTRY_IMAGE = 'docker-registry'
+GO_AGENTS = (1..3).map {|i| GO_AGENT_IMAGE + i.to_s}
 
 Vagrant.configure('2') do |config|
   config.ssh.insert_key = false
@@ -34,6 +34,7 @@ Vagrant.configure('2') do |config|
       override.ssh.private_key_path = your_private_key_which_has_to_be_authorized_in_server_manually
       deploy_cloud_config(override)
     end
+    cfg.vm.synced_folder './docker/go_server/godata/', '/srv/gocd/go-server', type: 'rsync'
     deploy_go_server_and_agent_containers(cfg)
   end
 
@@ -48,15 +49,24 @@ Vagrant.configure('2') do |config|
       override.vm.box = 'coreos-alpha'
       override.vm.box_version = COREOS_LOCAL_VERSION
       override.vm.box_url = 'http://alpha.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json'
-      v.memory = 3072
+      v.memory = 8192
+      v.cpus = 1
       v.check_guest_additions = false
       v.functional_vboxsf     = false
    end
  end
 
+  def import_agent_image(config)
+    config.vm.provision :shell, inline: 'docker load --input /vagrant/docker/go.agent.selenium.ready.tar'
+  end
+
+  def import_server_image(config)
+      config.vm.provision :shell, inline: 'docker load --input /vagrant/docker/go.server.tar'
+    end
+
   def setup_provisioner_for_removing_existing_containers_and_cleanup_images(config)
-    config.vm.provision :shell, inline: 'docker rm -f `docker ps -aq` 2>/dev/null || true'
-    config.vm.provision :shell, inline: 'docker rmi `docker images -f dangling=true -q` 2>/dev/null || true'
+    config.vm.provision :shell, inline: 'docker kill $(docker ps -q) || true'
+    config.vm.provision :shell, inline: 'docker rm $(docker ps -a -q) || true'
   end
 
   def deploy_go_server_and_agent_containers(config)
@@ -65,29 +75,28 @@ Vagrant.configure('2') do |config|
     host_docker_secrets = "#{SECRETS_DIR}/docker/.secrets"
     config.vm.provision :file, source: "#{host_docker_secrets}/htpasswd", destination: "#{VAGRANT_DIR}/docker/go_server/.secrets/htpasswd"
     setup_provisioner_for_removing_existing_containers_and_cleanup_images config
-
+    import_agent_image config
+    import_server_image config
     config.vm.provision :docker do |d|
       d.build_image "#{VAGRANT_DIR}/docker/go_server/",
-        args: "-t #{GO_SERVER_IMAGE} -t #{GO_SERVER_IMAGE}:latest"
+        args: " -t #{GO_SERVER_IMAGE} -t #{GO_SERVER_IMAGE}:latest"
 
-      d.run GO_SERVER_IMAGE, image: "#{GO_SERVER_IMAGE}:latest", args: '-i -t --net host -p 80:8153 -p8154:8154 -v /srv/gocd/go-server:/godata'
-
-      GO_AGENTS_IMAGES.each do |agent|
-        d.build_image "#{VAGRANT_DIR}/docker/go_agent/", args: "-t #{agent} -t #{agent}:latest --build-arg agent=#{agent}"
-        go_agent_args = "--privileged -ti --net host -e AGENT_AUTO_REGISTER_KEY=123456789abcdef -e AGENT_AUTO_REGISTER_HOSTNAME=#{agent} -v /var/run/docker.sock:/var/run/docker.sock -v /srv/gocd/go-agents/#{agent}:/godata -v /srv/gocd/secrets:/home/go/secrets"
-        d.run agent, image: "#{agent}:latest", args: go_agent_args
+      d.run GO_SERVER_IMAGE, image: "#{GO_SERVER_IMAGE}:latest", args: '--privileged -i -t -p 8153:8153 -p 8154:8154 -v /srv/gocd/go-server/config/cruise-config.xml:/godata/config/cruise-config.xml'
+      d.build_image "#{VAGRANT_DIR}/docker/go_agent/", args: "-t agent:latest"
+      GO_AGENTS.each do |agent|
+        go_agent_args = "--privileged -ti --link #{GO_SERVER_IMAGE}:#{GO_SERVER_IMAGE} -e AGENT_AUTO_REGISTER_KEY=123456789abcdefgh987654321 -e AGENT_AUTO_REGISTER_HOSTNAME=#{agent} -e GO_SERVER_URL=https://#{GO_SERVER_IMAGE}:8154/go -v /var/run/docker.sock:/var/run/docker.sock -v /srv/gocd/go-agents/#{agent}/pipelines:/godata/pipelines -v /srv/gocd/go-agents/#{agent}/log:/godata/log -v /srv/gocd/secrets:/home/go/secrets"
+        d.run agent, image: "agent:latest", args: go_agent_args
       end
 
       # Run image registry
-      registry_args = "-d -p 5000:5000 --net host --restart=always"
+      registry_args = "-d -p 5000:5000 --restart=always --net host --restart=always"
       d.run DOCKER_REGISTRY_IMAGE, image: "registry:2",args: registry_args
     end
   end
-
   def deploy_cloud_config(override)
     if File.exist?(CLOUD_CONFIG_PATH)
       override.vm.provision :file, source: CLOUD_CONFIG_PATH, destination: '/tmp/vagrantfile-user-data'
-      GO_AGENTS_IMAGES.each do |agent|
+      GO_AGENTS.each do |agent|
         script = <<-eos
         mkdir -p /srv/gocd/go-agents/#{agent}/pipelines
         mkdir -p /srv/gocd/go-agents/#{agent}/logs

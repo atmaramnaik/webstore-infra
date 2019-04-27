@@ -4,3 +4,7 @@ out
 .gradle
 .vagrant
 infra.iml
+docker/go.agent.selenium.ready.tar
+docker/go.server.tar
+gocd-monitor
+nevergreen-standalone.jar
