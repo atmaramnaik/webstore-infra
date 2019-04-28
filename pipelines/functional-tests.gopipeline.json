@@ -91,16 +91,6 @@
           "timeout": 0.0,
           "tasks": [
             {
-              "command": "ls",
-              "working_directory": "webstore-build-support/docker-compose",
-              "timeout": -1.0,
-              "arguments": [
-                "-al"
-              ],
-              "run_if": "passed",
-              "type": "exec"
-            },
-            {
               "command": "docker-compose",
               "working_directory": "webstore-build-support",
               "timeout": -1.0,
