@@ -18,6 +18,7 @@
   "materials": [
     {
       "url": "https://github.com/atmaramnaik/webstore-functional-tests.git",
+      "name": "test-code-repo",
       "branch": "master",
       "shallow_clone": false,
       "filter": {
