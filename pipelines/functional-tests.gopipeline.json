@@ -1,0 +1,143 @@
+{
+  "group": "Test",
+  "name": "functional-tests",
+  "display_order_weight": -1.0,
+  "label_template": "${COUNT}",
+  "lock_behavior": "none",
+  "environment_variables": [
+    {
+      "name": "BASE_URL",
+      "value": "http://192.168.33.66/ui"
+    },
+    {
+      "name": "DISPLAY",
+      "value": ":99"
+    }
+  ],
+  "parameters": [],
+  "materials": [
+    {
+      "url": "https://github.com/atmaramnaik/webstore-functional-tests.git",
+      "branch": "master",
+      "shallow_clone": false,
+      "filter": {
+        "ignore": [],
+        "whitelist": []
+      },
+      "destination": "webstore-functional-tests",
+      "auto_update": true,
+      "type": "git"
+    },
+    {
+      "pipeline": "registration-service",
+      "stage": "deploy",
+      "name": "registration-service",
+      "type": "dependency"
+    },
+    {
+      "pipeline": "ui",
+      "stage": "build",
+      "name": "ui",
+      "type": "dependency"
+    },
+    {
+      "pipeline": "product-service",
+      "stage": "deploy",
+      "name": "product-service",
+      "type": "dependency"
+    },
+    {
+      "url": "https://github.com/atmaramnaik/webstore-build-support.git",
+      "branch": "master",
+      "shallow_clone": false,
+      "filter": {
+        "ignore": [],
+        "whitelist": []
+      },
+      "destination": "webstore-build-support",
+      "auto_update": true,
+      "name": "build_support",
+      "type": "git"
+    }
+  ],
+  "stages": [
+    {
+      "name": "test",
+      "fetch_materials": true,
+      "never_cleanup_artifacts": false,
+      "clean_working_directory": false,
+      "approval": {
+        "type": "success",
+        "users": [],
+        "roles": []
+      },
+      "environment_variables": [],
+      "jobs": [
+        {
+          "name": "test",
+          "environment_variables": [],
+          "tabs": [],
+          "resources": [],
+          "artifacts": [
+            {
+              "source": "webstore-functional-tests/build",
+              "destination": "reports",
+              "type": "test"
+            }
+          ],
+          "properties": [],
+          "run_instance_count": "0",
+          "timeout": 0.0,
+          "tasks": [
+            {
+              "command": "ls",
+              "working_directory": "webstore-build-support/docker-compose",
+              "timeout": -1.0,
+              "arguments": [
+                "-al"
+              ],
+              "run_if": "passed",
+              "type": "exec"
+            },
+            {
+              "command": "docker-compose",
+              "working_directory": "webstore-build-support",
+              "timeout": -1.0,
+              "arguments": [
+                "-f",
+                "docker-compose/docker-compose.ubuntu.yml",
+                "up",
+                "-d"
+              ],
+              "run_if": "passed",
+              "type": "exec"
+            },
+            {
+              "command": "./gradlew",
+              "working_directory": "webstore-functional-tests",
+              "timeout": -1.0,
+              "arguments": [
+                "clean",
+                "test"
+              ],
+              "run_if": "passed",
+              "type": "exec"
+            },
+            {
+              "command": "docker-compose",
+              "working_directory": "webstore-build-support",
+              "timeout": -1.0,
+              "arguments": [
+                "-f",
+                "docker-compose/docker-compose.ubuntu.yml",
+                "stop"
+              ],
+              "run_if": "any",
+              "type": "exec"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
