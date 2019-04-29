@@ -41,6 +41,7 @@
           "name": "build",
           "environment_variables": [],
           "tabs": [],
+          "elastic_profile_id": "docker-elastic",
           "resources": [],
           "artifacts": [],
           "properties": [],

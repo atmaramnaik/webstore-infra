@@ -89,6 +89,7 @@
           "properties": [],
           "run_instance_count": "0",
           "timeout": 0.0,
+          "elastic_profile_id": "docker-elastic",
           "tasks": [
             {
               "command": "docker-compose",

@@ -23,6 +23,108 @@
       </admins>
     </security>
   </server>
+  <elastic>
+    <agentProfiles>
+      <agentProfile clusterProfileId="docker" id="docker-elastic" pluginId="cd.go.contrib.elastic-agent.docker">
+        <property>
+          <key>Hosts</key>
+          <value />
+        </property>
+        <property>
+          <key>Mounts</key>
+          <value>/var/run/docker.sock:/var/run/docker.sock</value>
+        </property>
+        <property>
+          <key>Command</key>
+          <value />
+        </property>
+        <property>
+          <key>Privileged</key>
+          <value>true</value>
+        </property>
+        <property>
+          <key>ReservedMemory</key>
+          <value />
+        </property>
+        <property>
+          <key>Environment</key>
+          <value />
+        </property>
+        <property>
+          <key>Cpus</key>
+          <value />
+        </property>
+        <property>
+          <key>Image</key>
+          <value>agent:latest</value>
+        </property>
+        <property>
+          <key>MaxMemory</key>
+          <value />
+        </property>
+      </agentProfile>
+    </agentProfiles>
+    <clusterProfiles>
+      <clusterProfile id="docker" pluginId="cd.go.contrib.elastic-agent.docker">
+        <property>
+          <key>go_server_url</key>
+          <value>https://192.168.33.66:8154/go</value>
+        </property>
+        <property>
+          <key>environment_variables</key>
+          <value />
+        </property>
+        <property>
+          <key>max_docker_containers</key>
+          <value>3</value>
+        </property>
+        <property>
+          <key>docker_uri</key>
+          <value>unix:///var/run/docker.sock</value>
+        </property>
+        <property>
+          <key>auto_register_timeout</key>
+          <value>3</value>
+        </property>
+        <property>
+          <key>docker_ca_cert</key>
+          <value />
+        </property>
+        <property>
+          <key>docker_client_cert</key>
+          <value />
+        </property>
+        <property>
+          <key>docker_client_key</key>
+          <value />
+        </property>
+        <property>
+          <key>private_registry_server</key>
+          <value />
+        </property>
+        <property>
+          <key>private_registry_username</key>
+          <value />
+        </property>
+        <property>
+          <key>private_registry_password</key>
+          <encryptedValue>AES:D4qFAR7NIO0X3JZSDONuCQ==:pR/DH9bSIezJFeqHCJUwhg==</encryptedValue>
+        </property>
+        <property>
+          <key>enable_private_registry_authentication</key>
+          <value>false</value>
+        </property>
+        <property>
+          <key>private_registry_custom_credentials</key>
+          <value>true</value>
+        </property>
+        <property>
+          <key>pull_on_container_create</key>
+          <value>false</value>
+        </property>
+      </clusterProfile>
+    </clusterProfiles>
+  </elastic>
   <config-repos>
   <config-repo pluginId="json.config.plugin" id="pipelines">
     <git url="https://github.com/atmaramnaik/webstore-infra.git" />
@@ -33,6 +135,7 @@
       </property>
     </configuration>
   </config-repo>
+  </config-repos>
   <pipelines group="build" />
   <pipelines group="Test" />
 </cruise>

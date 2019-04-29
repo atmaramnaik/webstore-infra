@@ -8,3 +8,8 @@ COPY ssh.config /home/go/.ssh/config
 USER root
 ADD .secrets/htpasswd /etc/
 RUN chmod 0644 /etc/htpasswd
+RUN addgroup --gid 997 docker && adduser --uid 997 --home /home -S docker docker && addgroup go docker
+RUN apk add docker
+RUN apk add openrc
+RUN apk update
+RUN rc-update add docker boot
