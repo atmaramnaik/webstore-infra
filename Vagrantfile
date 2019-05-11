@@ -96,14 +96,6 @@ Vagrant.configure('2') do |config|
   def deploy_cloud_config(override)
     if File.exist?(CLOUD_CONFIG_PATH)
       override.vm.provision :file, source: CLOUD_CONFIG_PATH, destination: '/tmp/vagrantfile-user-data'
-      GO_AGENTS.each do |agent|
-        script = <<-eos
-        mkdir -p /srv/gocd/go-agents/#{agent}/pipelines
-        mkdir -p /srv/gocd/go-agents/#{agent}/logs
-        chown -R 1000:1000 /srv/gocd/go-agents/#{agent}
-        eos
-      end
-
       script = <<-eos
       chown -R 1000:1000 /srv/gocd/go-server
       mkdir -p /var/lib/coreos-vagrant/ && mv -f /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/

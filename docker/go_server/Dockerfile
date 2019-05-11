@@ -13,3 +13,7 @@ RUN apk add docker
 RUN apk add openrc
 RUN apk update
 RUN rc-update add docker boot
+RUN mkdir -p /gradle/jars
+RUN mkdir -p /gradle/wrapper
+RUN chown -R 1000:1000 /gradle
+RUN chmod -R 777 /gradle

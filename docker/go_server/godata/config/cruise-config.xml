@@ -32,7 +32,9 @@
         </property>
         <property>
           <key>Mounts</key>
-          <value>/var/run/docker.sock:/var/run/docker.sock</value>
+          <value>/var/run/docker.sock:/var/run/docker.sock
+/gradle/jars:/home/go/.gradle//caches/modules-2/files-2.1:rw,z
+/gradle/wrapper:/home/go/.gradle/wrapper:rw,z</value>
         </property>
         <property>
           <key>Command</key>
