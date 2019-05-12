@@ -33,7 +33,7 @@
         <property>
           <key>Mounts</key>
           <value>/var/run/docker.sock:/var/run/docker.sock
-/var/go/secrets:/var/go/secrets
+/srv/gocd/secrets:/var/go/secrets:rw,z
 /gradle/jars:/home/go/.gradle//caches/modules-2/files-2.1:rw,z
 /gradle/wrapper:/home/go/.gradle/wrapper:rw,z</value>
         </property>

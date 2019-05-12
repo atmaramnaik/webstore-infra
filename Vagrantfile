@@ -72,6 +72,7 @@ Vagrant.configure('2') do |config|
   def deploy_go_server_and_agent_containers(config)
     config.vm.synced_folder '.', '/vagrant', disabled: true
     config.vm.synced_folder './docker/', '/vagrant/docker', type: 'rsync'
+    config.vm.synced_folder './docker/.secrets', '/srv/gocd/secrets', type: 'rsync'
     host_docker_secrets = "#{SECRETS_DIR}/docker/.secrets"
     config.vm.provision :file, source: "#{host_docker_secrets}/htpasswd", destination: "#{VAGRANT_DIR}/docker/go_server/.secrets/htpasswd"
     setup_provisioner_for_removing_existing_containers_and_cleanup_images config
@@ -81,7 +82,7 @@ Vagrant.configure('2') do |config|
       d.build_image "#{VAGRANT_DIR}/docker/go_server/",
         args: " -t #{GO_SERVER_IMAGE} -t #{GO_SERVER_IMAGE}:latest"
 
-      d.run GO_SERVER_IMAGE, image: "#{GO_SERVER_IMAGE}:latest", args: '--privileged -i -t -p 8153:8153 -p 8154:8154 -v /srv/gocd/go-server/config:/godata/config -v /srv/gocd/go-server/plugins:/godata/plugins -v /var/run/docker.sock:/var/run/docker.sock -v /vagrant/docker/.secrets:/var/go/secrets'
+      d.run GO_SERVER_IMAGE, image: "#{GO_SERVER_IMAGE}:latest", args: '--privileged -i -t -p 8153:8153 -p 8154:8154 -v /srv/gocd/go-server/config:/godata/config -v /srv/gocd/go-server/plugins:/godata/plugins -v /var/run/docker.sock:/var/run/docker.sock -v /srv/gocd/secrets:/srv/gocd/secrets'
       d.build_image "#{VAGRANT_DIR}/docker/go_agent/", args: "-t agent:latest"
       # GO_AGENTS.each do |agent|
       #   go_agent_args = "--privileged -ti --link #{GO_SERVER_IMAGE}:#{GO_SERVER_IMAGE} -e AGENT_AUTO_REGISTER_KEY=123456789abcdefgh987654321 -e AGENT_AUTO_REGISTER_HOSTNAME=#{agent} -e GO_SERVER_URL=https://#{GO_SERVER_IMAGE}:8154/go -v /var/run/docker.sock:/var/run/docker.sock -v /srv/gocd/go-agents/#{agent}/pipelines:/godata/pipelines -v /srv/gocd/go-agents/#{agent}/log:/godata/log -v /srv/gocd/secrets:/home/go/secrets"
@@ -98,6 +99,7 @@ Vagrant.configure('2') do |config|
       override.vm.provision :file, source: CLOUD_CONFIG_PATH, destination: '/tmp/vagrantfile-user-data'
       script = <<-eos
       chown -R 1000:1000 /srv/gocd/go-server
+      chown -R 1000:1000 /srv/gocd/secrets
       mkdir -p /var/lib/coreos-vagrant/ && mv -f /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/
       chmod a+rw /var/run/docker.sock
       eos

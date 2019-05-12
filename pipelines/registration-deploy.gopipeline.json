@@ -65,10 +65,11 @@
           "elastic_profile_id": "docker-elastic",
           "tasks": [
             {
-              "command": "./dockerlogin.sh",
+              "command": "sh",
               "working_directory": "webstore-build-support/scripts",
               "timeout": -1.0,
               "arguments": [
+                "./dockerlogin.sh"
               ],
               "run_if": "passed",
               "type": "exec"
