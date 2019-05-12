@@ -1,6 +1,6 @@
 {
   "group": "Deploy",
-  "name": "registration-deploy",
+  "name": "product-deploy",
   "display_order_weight": -1.0,
   "label_template": "${COUNT}",
   "lock_behavior": "none",
@@ -27,9 +27,9 @@
       "type": "dependency"
     },
     {
-      "pipeline": "registration-service",
+      "pipeline": "product-service",
       "stage": "deploy",
-      "name": "registration",
+      "name": "product",
       "type": "dependency"
     },
     {
@@ -85,7 +85,7 @@
               "timeout": -1.0,
               "arguments": [
                 "push",
-                "atmaram/webstore-registration"
+                "atmaram/webstore-product"
               ],
               "run_if": "passed",
               "type": "exec"
