@@ -1,0 +1,98 @@
+{
+  "group": "Deploy",
+  "name": "unifiedapi-deploy",
+  "display_order_weight": -1.0,
+  "label_template": "${COUNT}",
+  "lock_behavior": "none",
+  "environment_variables": [
+    {
+      "name": "version",
+      "value": "v0.0.1"
+    },
+    {
+      "name": "image",
+      "value": "atmaram/webstore-unifiedapi"
+    },
+    {
+      "name": "username",
+      "value": "atmaram"
+    }
+  ],
+  "parameters": [],
+  "materials": [
+    {
+      "pipeline": "functional-tests",
+      "stage": "test",
+      "name": "ft",
+      "type": "dependency"
+    },
+    {
+      "pipeline": "unifiedapi",
+      "stage": "build",
+      "name": "unifiedapi",
+      "type": "dependency"
+    },
+    {
+      "url": "https://github.com/atmaramnaik/webstore-build-support.git",
+      "branch": "master",
+      "shallow_clone": false,
+      "filter": {
+        "ignore": [],
+        "whitelist": []
+      },
+      "destination": "webstore-build-support",
+      "auto_update": true,
+      "name": "build_support",
+      "type": "git"
+    }
+  ],
+  "stages": [
+    {
+      "name": "deploy",
+      "fetch_materials": true,
+      "never_cleanup_artifacts": false,
+      "clean_working_directory": false,
+      "approval": {
+        "type": "success",
+        "users": [],
+        "roles": []
+      },
+      "environment_variables": [],
+      "jobs": [
+        {
+          "name": "deploy",
+          "environment_variables": [],
+          "tabs": [],
+          "resources": [],
+          "artifacts": [],
+          "properties": [],
+          "run_instance_count": "0",
+          "timeout": 0.0,
+          "elastic_profile_id": "docker-elastic",
+          "tasks": [
+            {
+              "command": "sh",
+              "working_directory": "webstore-build-support/scripts",
+              "timeout": -1.0,
+              "arguments": [
+                "./dockerlogin.sh"
+              ],
+              "run_if": "passed",
+              "type": "exec"
+            },
+            {
+              "command": "docker",
+              "timeout": -1.0,
+              "arguments": [
+                "push",
+                "atmaram/webstore-unifiedapi"
+              ],
+              "run_if": "passed",
+              "type": "exec"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
