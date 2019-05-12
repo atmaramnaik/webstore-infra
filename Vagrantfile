@@ -81,7 +81,7 @@ Vagrant.configure('2') do |config|
       d.build_image "#{VAGRANT_DIR}/docker/go_server/",
         args: " -t #{GO_SERVER_IMAGE} -t #{GO_SERVER_IMAGE}:latest"
 
-      d.run GO_SERVER_IMAGE, image: "#{GO_SERVER_IMAGE}:latest", args: '--privileged -i -t -p 8153:8153 -p 8154:8154 -v /srv/gocd/go-server/config:/godata/config -v /srv/gocd/go-server/plugins:/godata/plugins -v /var/run/docker.sock:/var/run/docker.sock'
+      d.run GO_SERVER_IMAGE, image: "#{GO_SERVER_IMAGE}:latest", args: '--privileged -i -t -p 8153:8153 -p 8154:8154 -v /srv/gocd/go-server/config:/godata/config -v /srv/gocd/go-server/plugins:/godata/plugins -v /var/run/docker.sock:/var/run/docker.sock -v /vagrant/docker/.secrets:/var/go/secrets'
       d.build_image "#{VAGRANT_DIR}/docker/go_agent/", args: "-t agent:latest"
       # GO_AGENTS.each do |agent|
       #   go_agent_args = "--privileged -ti --link #{GO_SERVER_IMAGE}:#{GO_SERVER_IMAGE} -e AGENT_AUTO_REGISTER_KEY=123456789abcdefgh987654321 -e AGENT_AUTO_REGISTER_HOSTNAME=#{agent} -e GO_SERVER_URL=https://#{GO_SERVER_IMAGE}:8154/go -v /var/run/docker.sock:/var/run/docker.sock -v /srv/gocd/go-agents/#{agent}/pipelines:/godata/pipelines -v /srv/gocd/go-agents/#{agent}/log:/godata/log -v /srv/gocd/secrets:/home/go/secrets"

@@ -1,0 +1,82 @@
+{
+  "group": "Deploy",
+  "name": "registration-deploy",
+  "display_order_weight": -1.0,
+  "label_template": "${COUNT}",
+  "lock_behavior": "none",
+  "environment_variables": [
+    {
+      "name": "version",
+      "value": "v0.0.1"
+    },
+    {
+      "name": "image",
+      "value": "atmaram/webstore-registration"
+    },
+    {
+      "name": "username",
+      "value": "atmaram"
+    }
+  ],
+  "parameters": [],
+  "materials": [
+    {
+      "pipeline": "functional-tests",
+      "stage": "test",
+      "name": "ft",
+      "type": "dependency"
+    }
+  ],
+  "stages": [
+    {
+      "name": "deploy",
+      "fetch_materials": true,
+      "never_cleanup_artifacts": false,
+      "clean_working_directory": false,
+      "approval": {
+        "type": "success",
+        "users": [],
+        "roles": []
+      },
+      "environment_variables": [],
+      "jobs": [
+        {
+          "name": "deploy",
+          "environment_variables": [],
+          "tabs": [],
+          "resources": [],
+          "artifacts": [],
+          "properties": [],
+          "run_instance_count": "0",
+          "timeout": 0.0,
+          "elastic_profile_id": "docker-elastic",
+          "tasks": [
+            {
+              "command": "docker",
+              "timeout": -1.0,
+              "arguments": [
+                "login",
+                "--username",
+                "${username}",
+                "--password",
+                "`cat /var/go/secrets/password.txt`"
+              ],
+              "run_if": "passed",
+              "type": "exec"
+            },
+            {
+              "command": "docker",
+              "timeout": -1.0,
+              "arguments": [
+                "push",
+                "${image}:${version}"
+              ],
+              "run_if": "passed",
+              "type": "exec"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
