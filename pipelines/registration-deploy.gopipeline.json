@@ -25,6 +25,19 @@
       "stage": "test",
       "name": "ft",
       "type": "dependency"
+    },
+    {
+      "url": "https://github.com/atmaramnaik/webstore-build-support.git",
+      "branch": "master",
+      "shallow_clone": false,
+      "filter": {
+        "ignore": [],
+        "whitelist": []
+      },
+      "destination": "webstore-build-support",
+      "auto_update": true,
+      "name": "build_support",
+      "type": "git"
     }
   ],
   "stages": [
@@ -52,14 +65,10 @@
           "elastic_profile_id": "docker-elastic",
           "tasks": [
             {
-              "command": "docker",
+              "command": "./dockerlogin.sh",
+              "working_directory": "webstore-build-support/scripts",
               "timeout": -1.0,
               "arguments": [
-                "login",
-                "--username",
-                "${username}",
-                "--password",
-                "${cat /var/go/secrets/password.txt}"
               ],
               "run_if": "passed",
               "type": "exec"
