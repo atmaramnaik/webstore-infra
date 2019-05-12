@@ -59,7 +59,7 @@
                 "--username",
                 "${username}",
                 "--password",
-                "`cat /var/go/secrets/password.txt`"
+                "${cat /var/go/secrets/password.txt}"
               ],
               "run_if": "passed",
               "type": "exec"
