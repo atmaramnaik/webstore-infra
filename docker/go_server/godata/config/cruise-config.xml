@@ -79,7 +79,7 @@
         </property>
         <property>
           <key>max_docker_containers</key>
-          <value>3</value>
+          <value>4</value>
         </property>
         <property>
           <key>docker_uri</key>
