@@ -13,5 +13,9 @@ pipelines:
         auto_update: true
         branch: master
         destination: webstore-build-support
+      ft:
+        pipeline: functional-tests
+        stage: test
+        name: ft
     parameters:
       image: atmaram/webstore-unifiedapi
