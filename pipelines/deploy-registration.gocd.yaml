@@ -1,6 +1,6 @@
 format_version: 3
 pipelines:
-  deploy-test:
+  deploy-registration:
     group: Deploy
     template: deploy
     label_template: ${COUNT}
